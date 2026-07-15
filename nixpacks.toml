@@ -1,0 +1,8 @@
+# Installs a system Chromium binary so Spatie Browsershot (headless-Chrome
+# PDF rendering) works on Laravel Cloud's containers, which don't ship a
+# browser by default. Point CHROME_PATH at the resulting binary in the Cloud
+# environment (usually /usr/bin/chromium or /usr/bin/chromium-browser —
+# confirm the exact path with `which chromium` in a Cloud shell after the
+# first deploy).
+[phases.setup]
+nixPkgs = ["chromium"]
