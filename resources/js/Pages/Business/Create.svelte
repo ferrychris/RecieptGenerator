@@ -7,9 +7,17 @@
     import { Button } from '$lib/components/ui/button';
     import InputError from '../../Components/InputError.svelte';
     import TemplateSelector from '../../Components/TemplateSelector.svelte';
+    import { Toaster, toast } from 'svelte-sonner';
 
     const page = usePage();
     const hasExistingOrganizations = $derived((page.props.organizations ?? []).length > 0);
+    const flash = $derived(page.props.flash);
+
+    $effect(() => {
+        if (flash?.success) toast.success(flash.success);
+        if (flash?.error) toast.error(flash.error);
+        if (flash?.message) toast(flash.message);
+    });
 
     let step = $state(1);
 
@@ -50,8 +58,9 @@
 </svelte:head>
 
 <div class="dark min-h-screen w-full flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <Toaster theme="dark" position="top-right" richColors />
     <div class="fixed inset-0 bg-neutral-950/80 -z-10"></div>
-    
+
     <div class="w-full max-w-lg z-10">
         <div class="mb-6 flex justify-center">
             <ApplicationLogo class="h-14 w-auto fill-current text-white" />

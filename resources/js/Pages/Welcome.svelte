@@ -638,9 +638,9 @@
     </main>
 
     <footer class="fixed bottom-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur-md border-t border-white/[0.06]">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-xs sm:text-sm text-neutral-500">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-6 py-3 text-center text-[11px] sm:justify-between sm:py-4 sm:text-left sm:text-sm text-neutral-500">
             <span>&copy; {new Date().getFullYear()} ReceiptGen by <a href="https://raytimedigital.org" target="_blank" rel="noopener" class="underline hover:text-white transition-colors">Raytime Digitals</a></span>
-            <div class="flex items-center gap-5">
+            <div class="flex items-center gap-4 sm:gap-5">
                 <Link href="/login" class="transition-colors hover:text-white">Sign in</Link>
                 <Link href="/register" class="transition-colors hover:text-white">Create account</Link>
             </div>

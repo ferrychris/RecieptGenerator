@@ -1,12 +1,13 @@
 <script>
     import { Link, router, usePage } from '@inertiajs/svelte';
-    import { LayoutDashboard, Receipt, BarChart3, Settings, LogOut } from '@lucide/svelte';
+    import { LayoutDashboard, Receipt, Users, BarChart3, Settings, LogOut } from '@lucide/svelte';
 
     const page = usePage();
 
     const items = [
         { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/invoices', label: 'Receipts', icon: Receipt },
+        { href: '/customers', label: 'Customers', icon: Users },
         { href: '/reports', label: 'Reports', icon: BarChart3 },
         { href: '/business/settings', label: 'Settings', icon: Settings },
     ];

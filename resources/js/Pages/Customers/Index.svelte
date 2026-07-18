@@ -36,29 +36,31 @@
                 {#if customers.data.length === 0}
                     <div class="p-6 text-sm text-neutral-400">No customers yet. Add your first one to get started.</div>
                 {:else}
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-neutral-400 uppercase border-b border-white/10">
-                            <tr>
-                                <th class="px-6 py-3">Name</th>
-                                <th class="px-6 py-3">Company</th>
-                                <th class="px-6 py-3">Email</th>
-                                <th class="px-6 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each customers.data as customer (customer.id)}
-                                <tr class="border-b border-white/10 last:border-0 hover:bg-white/5">
-                                    <td class="px-6 py-4 font-medium text-white">{customer.name}</td>
-                                    <td class="px-6 py-4 text-neutral-400">{customer.company ?? '—'}</td>
-                                    <td class="px-6 py-4 text-neutral-400">{customer.email ?? '—'}</td>
-                                    <td class="px-6 py-4 text-right space-x-2">
-                                        <Link href={`/customers/${customer.id}/edit`} class="text-blue-400 hover:underline">Edit</Link>
-                                        <button onclick={() => destroy(customer)} class="text-red-400 hover:underline">Delete</button>
-                                    </td>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-neutral-400 uppercase border-b border-white/10">
+                                <tr>
+                                    <th class="px-6 py-3">Name</th>
+                                    <th class="px-6 py-3">Company</th>
+                                    <th class="px-6 py-3">Email</th>
+                                    <th class="px-6 py-3"></th>
                                 </tr>
-                            {/each}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {#each customers.data as customer (customer.id)}
+                                    <tr class="border-b border-white/10 last:border-0 hover:bg-white/5">
+                                        <td class="px-6 py-4 font-medium text-white whitespace-nowrap">{customer.name}</td>
+                                        <td class="px-6 py-4 text-neutral-400 whitespace-nowrap">{customer.company ?? '—'}</td>
+                                        <td class="px-6 py-4 text-neutral-400 whitespace-nowrap">{customer.email ?? '—'}</td>
+                                        <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                                            <Link href={`/customers/${customer.id}/edit`} class="text-blue-400 hover:underline">Edit</Link>
+                                            <button onclick={() => destroy(customer)} class="text-red-400 hover:underline">Delete</button>
+                                        </td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </div>
                 {/if}
             </CardContent>
         </Card>

@@ -3,6 +3,7 @@
     import ApplicationLogo from '../Components/ApplicationLogo.svelte';
     import OrgSwitcher from '../Components/OrgSwitcher.svelte';
     import Sidebar from '../Components/Sidebar.svelte';
+    import MobileNavBar from '../Components/MobileNavBar.svelte';
     import { ChevronDown } from '@lucide/svelte';
     import { Toaster, toast } from 'svelte-sonner';
 
@@ -127,17 +128,23 @@
             </div>
 
             <div class="pt-2 pb-3 space-y-1">
-
-                <Link
-                    href="/reports"
-                    class={`block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out focus:outline-none ${
-                        page.url.startsWith('/reports')
-                            ? 'border-indigo-400 text-white bg-white/5'
-                            : 'border-transparent text-neutral-400 hover:text-white hover:bg-white/5 hover:border-neutral-600'
-                    }`}
-                >
-                    Reports
-                </Link>
+                {#each [
+                    ['/dashboard', 'Dashboard'],
+                    ['/invoices', 'Receipts'],
+                    ['/customers', 'Customers'],
+                    ['/reports', 'Reports'],
+                ] as [href, label] (href)}
+                    <Link
+                        {href}
+                        class={`block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out focus:outline-none ${
+                            page.url.startsWith(href)
+                                ? 'border-indigo-400 text-white bg-white/5'
+                                : 'border-transparent text-neutral-400 hover:text-white hover:bg-white/5 hover:border-neutral-600'
+                        }`}
+                    >
+                        {label}
+                    </Link>
+                {/each}
             </div>
 
             <!-- Responsive Settings Options -->
@@ -187,9 +194,11 @@
             {/if}
 
             <!-- Page Content -->
-            <main class="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
+            <main class="px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8 max-w-7xl mx-auto w-full">
                 {@render children?.()}
             </main>
         </div>
     </div>
+
+    <MobileNavBar />
 </div>

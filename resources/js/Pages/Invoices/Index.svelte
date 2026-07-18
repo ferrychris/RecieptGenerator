@@ -111,6 +111,7 @@
                 {#if invoices.data.length === 0}
                     <div class="p-6 text-sm text-neutral-400">No receipts found.</div>
                 {:else}
+                    <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
                         <thead class="text-xs text-neutral-400 uppercase border-b border-white/10">
                             <tr>
@@ -150,7 +151,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right text-white">{invoice.total} {invoice.currency}</td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-6 py-4 text-right whitespace-nowrap">
                                         <div class="flex items-center justify-end gap-2">
                                             {#if invoice.status !== 'paid'}
                                                 <Link href={`/invoices/${invoice.id}/edit`}>
@@ -172,6 +173,7 @@
                             {/each}
                         </tbody>
                     </table>
+                    </div>
                 {/if}
             </CardContent>
         </Card>

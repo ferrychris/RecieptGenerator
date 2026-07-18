@@ -16,7 +16,11 @@ class EnsureBusinessExists
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user() && ! $request->user()->business_id) {
-            return redirect()->route('business.create');
+            // Re-flash any pending notification (e.g. the "logged in" toast
+            // from registration) so it survives this extra redirect hop —
+            // session flash data only lives for one hop by default.
+            return redirect()->route('business.create')
+                ->with($request->session()->only(['success', 'error', 'message']));
         }
 
         return $next($request);
