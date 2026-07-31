@@ -162,15 +162,24 @@ class InvoiceDocumentBuilder
             return null;
         }
 
-        $disk = Storage::disk(config('receipts.uploads_disk'));
+        try {
+            $disk = Storage::disk(config('receipts.uploads_disk'));
 
-        if (! $disk->exists($path)) {
+            if (! $disk->exists($path)) {
+                return null;
+            }
+
+            $mime = $disk->mimeType($path) ?: 'image/png';
+            $contents = $disk->get($path);
+
+            return "data:{$mime};base64,".base64_encode($contents);
+        } catch (\Throwable $e) {
+            // A storage-layer hiccup (bad credentials, network blip, etc.)
+            // fetching the logo shouldn't take down the entire receipt —
+            // render without it instead of 500ing.
+            report($e);
+
             return null;
         }
-
-        $mime = $disk->mimeType($path) ?: 'image/png';
-        $contents = $disk->get($path);
-
-        return "data:{$mime};base64,".base64_encode($contents);
     }
 }

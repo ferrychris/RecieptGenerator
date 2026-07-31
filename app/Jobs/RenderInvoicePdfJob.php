@@ -34,7 +34,19 @@ class RenderInvoicePdfJob implements ShouldQueue
         $pdf = $renderer->render($html, $document['meta']);
 
         $path = "receipts/{$this->invoice->business_id}/{$this->invoice->id}.pdf";
-        Storage::disk(config('receipts.storage_disk'))->put($path, $pdf);
+
+        // The configured disk has 'throw' => false, so a failed upload
+        // (bad credentials, network blip, misconfigured endpoint) returns
+        // false here rather than throwing — checking it explicitly is the
+        // only thing preventing the invoice from being marked as "rendered"
+        // when the PDF was never actually written, which otherwise surfaces
+        // later as a 500 on preview/download instead of a clear failure here.
+        $written = Storage::disk(config('receipts.storage_disk'))->put($path, $pdf);
+
+        if (! $written) {
+            throw new \RuntimeException("Failed to write receipt PDF to disk at [{$path}].");
+        }
+
         $this->invoice->update(['pdf_url' => $path]);
     }
 }
