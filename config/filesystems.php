@@ -75,8 +75,9 @@ return [
             'report' => false,
         ],
 
-        // Business logos — stored under logos/{business_id}/ prefix.
-        // Uses the same bucket; set UPLOADS_DISK=logos in production.
+        // Business logos — stored under logos/ prefix in the shared bucket.
+        // Bucket is made public at the R2/Cloud level — do NOT set visibility
+        // here since R2 doesn't support per-object ACLs and will reject them.
         'logos' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -86,7 +87,6 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'public',
             'throw' => true,
             'report' => false,
         ],

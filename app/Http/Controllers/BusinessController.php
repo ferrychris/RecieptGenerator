@@ -35,7 +35,7 @@ class BusinessController extends Controller
 
         if ($request->hasFile('logo')) {
             try {
-                $data['logo_url'] = $request->file('logo')->storePublicly('logos', config('receipts.uploads_disk'));
+                $data['logo_url'] = $request->file('logo')->store('logos', config('receipts.uploads_disk'));
             } catch (\Throwable $e) {
                 report($e);
                 return back()->withErrors(['logo' => 'Logo upload failed: ' . $e->getMessage()]);
