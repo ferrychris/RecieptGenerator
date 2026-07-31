@@ -290,7 +290,14 @@ class InvoiceController extends Controller
         try {
             RenderInvoicePdfJob::dispatchSync($invoice, $layoutKey);
         } catch (\Throwable $e) {
-            abort(500, "PDF Generation Error: " . $e->getMessage());
+            // Report the original exception before aborting: abort() raises a
+            // fresh HttpException, so without this the real stack trace (the
+            // only thing that identifies *why* rendering failed) never reaches
+            // the logs — and in production the message below is hidden too,
+            // leaving nothing but an opaque 500.
+            report($e);
+
+            abort(500, 'PDF Generation Error: '.$e->getMessage());
         }
 
         $invoice->refresh();
