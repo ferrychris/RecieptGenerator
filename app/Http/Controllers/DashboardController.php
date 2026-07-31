@@ -23,8 +23,27 @@ class DashboardController extends Controller
             ->whereYear('issue_date', now()->year)
             ->count();
 
-        $unpaidAmount = (float) $business->invoices()
-            ->whereIn('status', ['unpaid', 'part_payment'])
+        $dailySold = (float) $business->invoices()
+            ->whereDate('issue_date', now())
+            ->sum('total');
+
+        $yesterdaySold = (float) $business->invoices()
+            ->whereDate('issue_date', now()->subDay())
+            ->sum('total');
+
+        $monthlySold = (float) $business->invoices()
+            ->whereMonth('issue_date', now()->month)
+            ->whereYear('issue_date', now()->year)
+            ->sum('total');
+
+        $yearlySold = (float) $business->invoices()
+            ->whereYear('issue_date', now()->year)
+            ->sum('total');
+
+        $monthlyDebt = (float) $business->invoices()
+            ->where('status', 'part_payment')
+            ->whereMonth('issue_date', now()->month)
+            ->whereYear('issue_date', now()->year)
             ->sum(\Illuminate\Support\Facades\DB::raw('total - COALESCE(amount_paid, 0)'));
 
         $customerCount = $business->customers()->count();
@@ -72,7 +91,11 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             'stats' => [
                 'collectedThisMonth' => $collectedThisMonth,
-                'unpaidAmount' => $unpaidAmount,
+                'dailySold' => $dailySold,
+                'yesterdaySold' => $yesterdaySold,
+                'monthlySold' => $monthlySold,
+                'yearlySold' => $yearlySold,
+                'monthlyDebt' => $monthlyDebt,
                 'receiptsThisMonth' => $receiptsThisMonth,
                 'customerCount' => $customerCount,
                 'collectedTrend' => $collectedTrendData,

@@ -18,7 +18,7 @@ class InvoiceController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = $request->user()->business->invoices()->with('customer:id,name');
+        $query = $request->user()->business->invoices()->with('customer:id,name,whatsapp_number');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -112,7 +112,7 @@ class InvoiceController extends Controller
         }
 
         return Inertia::render('Invoices/Edit', [
-            'invoice' => $invoice->load('items', 'customer:id,name', 'transactions'),
+            'invoice' => $invoice->load('items', 'customer:id,name,whatsapp_number', 'transactions'),
         ]);
     }
 

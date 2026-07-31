@@ -210,6 +210,16 @@
             </div>
         @endif
 
+        @if(($options['show_qr'] ?? true) && $verification['qr_svg'])
+            <div style="margin-top:32px; padding-top:16px; border-top:1px solid {{ $theme['rule'] }}; display:flex; align-items:center; justify-content:center; gap:12px;">
+                <div>{!! $verification['qr_svg'] !!}</div>
+                <div style="font-size:9px; color:{{ $theme['muted'] }}; line-height:1.4;">
+                    <div style="text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Scan to verify</div>
+                    <div>Receipt {{ $invoice['number'] }}</div>
+                </div>
+            </div>
+        @endif
+
         @if($theme['footer_text'])
             <footer>{{ $theme['footer_text'] }}</footer>
         @endif

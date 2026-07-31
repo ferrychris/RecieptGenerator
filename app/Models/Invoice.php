@@ -34,6 +34,8 @@ class Invoice extends Model
         'pdf_url',
     ];
 
+    protected $appends = ['verify_url'];
+
     protected function casts(): array
     {
         return [
@@ -45,6 +47,13 @@ class Invoice extends Model
             'amount_paid' => 'decimal:2',
             'completed_at' => 'datetime',
         ];
+    }
+
+    protected function verifyUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: fn () => \Illuminate\Support\Facades\URL::signedRoute('receipts.verify', ['invoice' => $this->id ?? 0]),
+        );
     }
 
     public function customer(): BelongsTo

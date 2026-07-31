@@ -138,8 +138,8 @@ class InvoiceDocumentBuilder
             margin: 4,
         );
         // Excludes the XML declaration: this SVG is inlined directly into
-        // the receipt's HTML, and a leading "<?xml ...?>" there would
-        // render as stray visible text rather than being parsed as markup.
+        // the receipt's HTML, and a leading XML prolog there would render
+        // as stray visible text rather than being parsed as markup.
         $qrSvg = (new SvgWriter())->write($qrCode, options: [
             SvgWriter::WRITER_OPTION_EXCLUDE_XML_DECLARATION => true,
         ])->getString();

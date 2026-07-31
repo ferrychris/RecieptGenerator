@@ -87,22 +87,46 @@
 
     <div class="space-y-6">
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Row 1 -->
                 <Card>
                     <CardHeader>
-                        <CardDescription>Collected this month</CardDescription>
-                        <CardTitle class="text-2xl">{money(stats.collectedThisMonth)} {currency}</CardTitle>
+                        <CardDescription>Daily Sold (Today)</CardDescription>
+                        <CardTitle class="text-2xl">{money(stats.dailySold)} {currency}</CardTitle>
                     </CardHeader>
-                    <CardContent class="h-16 pt-0 pb-4">
-                        <Line data={getChartData(stats.collectedTrend, '#22c55e')} options={chartOptions} />
-                    </CardContent>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardDescription>Unpaid Amount</CardDescription>
-                        <CardTitle class="text-2xl text-red-500">{money(stats.unpaidAmount)} {currency}</CardTitle>
+                        <CardDescription>Yesterday's Sales</CardDescription>
+                        <CardTitle class="text-2xl text-neutral-300">{money(stats.yesterdaySold)} {currency}</CardTitle>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Monthly Sales</CardDescription>
+                        <CardTitle class="text-2xl">{money(stats.monthlySold)} {currency}</CardTitle>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Yearly Sales</CardDescription>
+                        <CardTitle class="text-2xl">{money(stats.yearlySold)} {currency}</CardTitle>
+                    </CardHeader>
+                </Card>
+
+                <!-- Row 2 -->
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Monthly Debt (Part Pay)</CardDescription>
+                        <CardTitle class="text-2xl text-orange-400">{money(stats.monthlyDebt)} {currency}</CardTitle>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Collected this month</CardDescription>
+                        <CardTitle class="text-2xl text-green-400">{money(stats.collectedThisMonth)} {currency}</CardTitle>
                     </CardHeader>
                     <CardContent class="h-16 pt-0 pb-4">
-                        <!-- We can leave this empty or add a simple placeholder if no trend data for unpaid -->
+                        <Line data={getChartData(stats.collectedTrend, '#22c55e')} options={chartOptions} />
                     </CardContent>
                 </Card>
                 <Card>

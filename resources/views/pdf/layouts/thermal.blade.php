@@ -35,21 +35,9 @@
         .item .sub-row { display: flex; justify-content: space-between; color: {{ $theme['muted'] }}; font-size: 9px; }
         .totals-row { display: flex; justify-content: space-between; margin: 2px 0; }
         .grand-total { font-weight: 700; font-size: 13px; margin-top: 4px; }
-        .barcode {
-            height: 34px;
-            margin: 10px 0 4px 0;
-            background: repeating-linear-gradient(
-                90deg,
-                {{ $theme['text'] }} 0px,
-                {{ $theme['text'] }} 2px,
-                transparent 2px,
-                transparent 3px,
-                {{ $theme['text'] }} 3px,
-                {{ $theme['text'] }} 4px,
-                transparent 4px,
-                transparent 6px
-            );
-        }
+        .qr-verify { margin: 12px 0 4px 0; text-align: center; }
+        .qr-verify div:first-child { display: flex; justify-content: center; }
+        .qr-verify .caption { margin-top: 4px; font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
         footer { margin-top: 10px; font-size: 9px; }
     </style>
 </head>
@@ -112,8 +100,11 @@
         <div class="center muted">{{ $invoice['notes'] }}</div>
     @endif
 
-    @if($options['show_qr'] ?? false)
-        <div class="barcode"></div>
+    @if(($options['show_qr'] ?? true) && $verification['qr_svg'])
+        <div class="qr-verify">
+            <div>{!! $verification['qr_svg'] !!}</div>
+            <div class="caption muted">Scan to verify</div>
+        </div>
     @endif
 
     @if($theme['footer_text'])

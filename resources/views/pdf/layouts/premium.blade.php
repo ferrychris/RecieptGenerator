@@ -265,6 +265,16 @@
                 <span class="item"><span class="dot"></span>{{ implode(', ', $business['address_lines']) }}</span>
             @endif
         </div>
+
+        @if(($options['show_qr'] ?? true) && $verification['qr_svg'])
+            <div style="margin-top:28px; padding-top:20px; border-top:1.5px solid {{ $gold }}; display:flex; align-items:center; gap:14px;">
+                <div>{!! $verification['qr_svg'] !!}</div>
+                <div style="font-size:10px; color:{{ $theme['muted'] }}; line-height:1.4;">
+                    <div style="text-transform:uppercase; letter-spacing:0.5px; font-weight:700; color:{{ $theme['text'] }};">Scan to verify</div>
+                    <div>Receipt {{ $invoice['number'] }}</div>
+                </div>
+            </div>
+        @endif
     </div>
 </body>
 </html>
