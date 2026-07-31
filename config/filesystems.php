@@ -60,14 +60,14 @@ return [
             'report' => false,
         ],
 
-        // Dedicated disk for generated receipt PDFs (Laravel Cloud bucket).
-        // Set RECEIPT_STORAGE_DISK=receipts in production.
+        // Receipt PDFs — stored under receipts/{business_id}/ prefix.
+        // Uses the same bucket as the s3 disk; set RECEIPT_STORAGE_DISK=receipts in production.
         'receipts' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
-            'bucket' => env('RECEIPT_BUCKET', env('AWS_BUCKET')),
+            'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
@@ -75,15 +75,15 @@ return [
             'report' => false,
         ],
 
-        // Dedicated disk for uploaded business/org logos (Laravel Cloud bucket).
-        // Set UPLOADS_DISK=logos in production.
+        // Business logos — stored under logos/{business_id}/ prefix.
+        // Uses the same bucket; set UPLOADS_DISK=logos in production.
         'logos' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
-            'bucket' => env('LOGO_BUCKET', env('AWS_BUCKET')),
-            'url' => env('LOGO_BUCKET_URL', env('AWS_URL')),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'public',
