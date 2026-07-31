@@ -45,6 +45,17 @@ class Business extends Model
         ];
     }
 
+    /**
+     * Browser-usable URL for the logo, for the dashboard's <img> tags.
+     *
+     * A plain public URL, since the logo bucket is public. Set the disk's
+     * `url` (LOGO_BUCKET_URL) to the bucket's public base — an R2 bucket's
+     * S3 API endpoint is not publicly readable, so without it these render
+     * as silently broken images.
+     *
+     * Only for on-screen display: PDFs embed the logo as a base64 data URI,
+     * since they render with no session or origin.
+     */
     protected function logoFullUrl(): Attribute
     {
         return Attribute::make(

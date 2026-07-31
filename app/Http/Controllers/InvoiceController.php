@@ -148,6 +148,9 @@ class InvoiceController extends Controller
                 'issue_date' => $data['issue_date'],
                 'due_date' => $data['issue_date'],
                 'notes' => $data['notes'] ?? null,
+                // Discard the stored PDF: it now shows stale figures, and
+                // serving it would contradict the receipt's own record.
+                'pdf_url' => null,
             ]);
 
             $invoice->items()->delete();
@@ -272,19 +275,19 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Renders the receipt and returns the bytes straight to the browser.
-     *
-     * The PDF is intentionally not persisted: nothing else in the app reads a
-     * stored copy, and the previous implementation re-rendered on every
-     * request anyway, so writing to object storage added a failure mode
-     * without buying any caching.
+     * Serves the receipt PDF, reusing the copy stored in the receipts bucket
+     * when there is one. An explicit ?layout= override always re-renders,
+     * since it's asking for something other than the stored version.
      */
     private function pdfResponse(Request $request, Invoice $invoice, string $disposition): HttpResponse
     {
-        $layoutKey = $request->query('layout', $invoice->template ?? 'ledger');
+        $factory = app(InvoicePdfFactory::class);
+        $layoutOverride = $request->query('layout');
 
         try {
-            $pdf = app(InvoicePdfFactory::class)->make($invoice, $layoutKey);
+            $pdf = $layoutOverride
+                ? $factory->make($invoice, $layoutOverride)
+                : $factory->fetchOrMake($invoice);
         } catch (\Throwable $e) {
             // Report before aborting: abort() raises a fresh HttpException, so
             // without this the real stack trace — the only thing identifying

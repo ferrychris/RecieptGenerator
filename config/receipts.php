@@ -46,13 +46,13 @@ return [
     // otherwise puppeteer downloads to one place and looks in another.
     'puppeteer_cache_dir' => env('PUPPETEER_CACHE_DIR'),
 
-    // Disk used to store generated receipt/invoice PDFs. Defaults to the
-    // local disk for development; set to 's3' in production so PDFs are
-    // readable regardless of which container/instance handles a request.
+    // Disk holding generated receipt PDFs. Defaults to the local disk for
+    // development; set to 'receipts' in production (see the disk of that
+    // name in config/filesystems.php, backed by the receipts bucket) so
+    // stored PDFs are readable from any container.
     'storage_disk' => env('RECEIPT_STORAGE_DISK', 'local'),
 
-    // Disk used to store publicly-served uploads (business logos). Defaults
-    // to the local 'public' disk for development; set to 's3' in production
-    // for the same reason as above.
+    // Disk holding uploaded organization logos. Defaults to the local
+    // 'public' disk for development; set to 'logos' in production.
     'uploads_disk' => env('UPLOADS_DISK', 'public'),
 ];

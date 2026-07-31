@@ -60,6 +60,43 @@ return [
             'report' => false,
         ],
 
+        /*
+        | Generated receipt PDFs. Separate from the logo bucket so the two can
+        | have independent lifecycles and access policies. Credentials and
+        | endpoint are shared with the `s3` disk above — only the bucket (and
+        | its public URL) differ.
+        */
+        'receipts' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('RECEIPT_BUCKET', env('AWS_BUCKET')),
+            'url' => env('RECEIPT_BUCKET_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        /*
+        | Uploaded organization logos.
+        */
+        'logos' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('LOGO_BUCKET', env('AWS_BUCKET')),
+            'url' => env('LOGO_BUCKET_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*
