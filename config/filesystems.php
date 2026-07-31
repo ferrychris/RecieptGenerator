@@ -60,40 +60,34 @@ return [
             'report' => false,
         ],
 
-        /*
-        | Generated receipt PDFs. Separate from the logo bucket so the two can
-        | have independent lifecycles and access policies. Credentials and
-        | endpoint are shared with the `s3` disk above — only the bucket (and
-        | its public URL) differ.
-        */
+        // Dedicated disk for generated receipt PDFs (Laravel Cloud bucket).
+        // Set RECEIPT_STORAGE_DISK=receipts in production.
         'receipts' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('AWS_DEFAULT_REGION', 'auto'),
             'bucket' => env('RECEIPT_BUCKET', env('AWS_BUCKET')),
-            'url' => env('RECEIPT_BUCKET_URL'),
+            'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'public',
-            'throw' => false,
+            'throw' => true,
             'report' => false,
         ],
 
-        /*
-        | Uploaded organization logos.
-        */
+        // Dedicated disk for uploaded business/org logos (Laravel Cloud bucket).
+        // Set UPLOADS_DISK=logos in production.
         'logos' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('AWS_DEFAULT_REGION', 'auto'),
             'bucket' => env('LOGO_BUCKET', env('AWS_BUCKET')),
-            'url' => env('LOGO_BUCKET_URL'),
+            'url' => env('LOGO_BUCKET_URL', env('AWS_URL')),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'public',
-            'throw' => false,
+            'throw' => true,
             'report' => false,
         ],
 
