@@ -286,18 +286,11 @@ class InvoiceController extends Controller
         $layoutKey = $request->query('layout', $invoice->template ?? 'ledger');
 
         $invoice->update(['pdf_url' => null]);
-        RenderInvoicePdfJob::dispatch($invoice, $layoutKey);
+        RenderInvoicePdfJob::dispatchSync($invoice, $layoutKey);
 
-        $deadline = microtime(true) + 15;
-        while (microtime(true) < $deadline) {
-            usleep(250_000);
-            $invoice->refresh();
-            if ($invoice->pdf_url) {
-                break;
-            }
-        }
+        $invoice->refresh();
 
-        abort_if(! $invoice->pdf_url, 504, 'The receipt is taking longer than expected to generate. Please try again.');
+        abort_if(! $invoice->pdf_url, 500, 'Failed to generate receipt PDF.');
 
         // Storage::download()/response() stream the file's bytes rather than
         // needing a local filesystem path, so this works identically whether
