@@ -186,8 +186,12 @@ class DiagnoseReceipts extends Command
 
         $failures = 0;
 
+        $this->comment('Note: receipt PDFs are streamed straight to the browser and never');
+        $this->comment('stored, so only the uploads disk (business logos) is load-bearing.');
+        $this->comment('A failure there degrades gracefully — receipts render without a logo.');
+        $this->newLine();
+
         foreach ([
-            'receipts.storage_disk (PDFs)' => config('receipts.storage_disk'),
             'receipts.uploads_disk (logos)' => config('receipts.uploads_disk'),
         ] as $label => $diskName) {
             $this->line("{$label}: {$diskName}");

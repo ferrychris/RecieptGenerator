@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\RenderInvoicePdfJob;
 use App\Models\Invoice;
 use App\Services\LayoutCatalog;
+use App\Services\Rendering\InvoicePdfFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+// Aliased because `Response` in this file already means Inertia's.
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -260,54 +261,44 @@ class InvoiceController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function downloadPdf(Request $request, Invoice $invoice): StreamedResponse
+    public function downloadPdf(Request $request, Invoice $invoice): HttpResponse
     {
-        $path = $this->renderPdfAndWait($request, $invoice);
-
-        return Storage::disk(config('receipts.storage_disk'))->download($path, "{$invoice->number}.pdf");
+        return $this->pdfResponse($request, $invoice, 'attachment');
     }
 
-    public function previewPdf(Request $request, Invoice $invoice): StreamedResponse
+    public function previewPdf(Request $request, Invoice $invoice): HttpResponse
     {
-        $path = $this->renderPdfAndWait($request, $invoice);
-
-        return Storage::disk(config('receipts.storage_disk'))->response($path, "{$invoice->number}.pdf", [
-            'Content-Disposition' => "inline; filename=\"{$invoice->number}.pdf\"",
-        ]);
+        return $this->pdfResponse($request, $invoice, 'inline');
     }
 
-    private function renderPdfAndWait(Request $request, Invoice $invoice): string
+    /**
+     * Renders the receipt and returns the bytes straight to the browser.
+     *
+     * The PDF is intentionally not persisted: nothing else in the app reads a
+     * stored copy, and the previous implementation re-rendered on every
+     * request anyway, so writing to object storage added a failure mode
+     * without buying any caching.
+     */
+    private function pdfResponse(Request $request, Invoice $invoice, string $disposition): HttpResponse
     {
-        // Rendering shells out to headless Chrome, which is dispatched to the
-        // queue worker rather than run inline: PHP's built-in dev server
-        // (`artisan serve`) cannot reliably spawn the Chrome subprocess
-        // itself, and production is expected to run a persistent queue
-        // worker anyway (see plan.md's rendering architecture).
         $layoutKey = $request->query('layout', $invoice->template ?? 'ledger');
 
-        $invoice->update(['pdf_url' => null]);
-        
         try {
-            RenderInvoicePdfJob::dispatchSync($invoice, $layoutKey);
+            $pdf = app(InvoicePdfFactory::class)->make($invoice, $layoutKey);
         } catch (\Throwable $e) {
-            // Report the original exception before aborting: abort() raises a
-            // fresh HttpException, so without this the real stack trace (the
-            // only thing that identifies *why* rendering failed) never reaches
-            // the logs — and in production the message below is hidden too,
-            // leaving nothing but an opaque 500.
+            // Report before aborting: abort() raises a fresh HttpException, so
+            // without this the real stack trace — the only thing identifying
+            // *why* rendering failed — never reaches the logs, and production
+            // hides the message below too.
             report($e);
 
             abort(500, 'PDF Generation Error: '.$e->getMessage());
         }
 
-        $invoice->refresh();
-
-        abort_if(! $invoice->pdf_url, 500, 'Failed to generate receipt PDF.');
-
-        // Storage::download()/response() stream the file's bytes rather than
-        // needing a local filesystem path, so this works identically whether
-        // the PDF lives on the local disk or S3 (config('receipts.storage_disk')).
-        return $invoice->pdf_url;
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "{$disposition}; filename=\"{$invoice->number}.pdf\"",
+        ]);
     }
 
     private function validated(Request $request): array
