@@ -34,7 +34,12 @@ class BusinessController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $data['logo_url'] = $request->file('logo')->store('logos', config('receipts.uploads_disk'));
+            try {
+                $data['logo_url'] = $request->file('logo')->storePublicly('logos', config('receipts.uploads_disk'));
+            } catch (\Throwable $e) {
+                report($e);
+                return back()->withErrors(['logo' => 'Logo upload failed: ' . $e->getMessage()]);
+            }
         }
         unset($data['logo']);
 
@@ -89,9 +94,18 @@ class BusinessController extends Controller
 
         if ($request->hasFile('logo')) {
             if ($business->logo_url) {
-                Storage::disk(config('receipts.uploads_disk'))->delete($business->logo_url);
+                try {
+                    Storage::disk(config('receipts.uploads_disk'))->delete($business->logo_url);
+                } catch (\Throwable $e) {
+                    report($e); // non-fatal — old logo cleanup, don't block the update
+                }
             }
-            $data['logo_url'] = $request->file('logo')->store('logos', config('receipts.uploads_disk'));
+            try {
+                $data['logo_url'] = $request->file('logo')->storePublicly('logos', config('receipts.uploads_disk'));
+            } catch (\Throwable $e) {
+                report($e);
+                return back()->withErrors(['logo' => 'Logo upload failed: ' . $e->getMessage()]);
+            }
         }
         unset($data['logo']);
 
