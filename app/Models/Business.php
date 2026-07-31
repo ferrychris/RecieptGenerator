@@ -90,7 +90,22 @@ class Business extends Model
             $business = static::query()->lockForUpdate()->findOrFail($this->id);
             $business->increment('invoice_number_seq');
 
-            return sprintf('RCT-%05d', $business->invoice_number_seq);
+            $initials = '';
+            if (!empty($business->name)) {
+                $words = explode(' ', trim($business->name));
+                foreach ($words as $word) {
+                    if (!empty($word)) {
+                        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+                    }
+                }
+            }
+            
+            $initials = mb_substr($initials, 0, 3);
+            if (empty($initials)) {
+                $initials = 'RCT';
+            }
+
+            return sprintf('%s-%05d', $initials, $business->invoice_number_seq);
         });
     }
 }

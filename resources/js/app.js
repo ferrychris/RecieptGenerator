@@ -11,3 +11,9 @@ createInertiaApp({
         mount(App, { target: el, props });
     },
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+    });
+}
