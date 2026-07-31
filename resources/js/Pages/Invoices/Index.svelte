@@ -3,8 +3,11 @@
     import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.svelte';
     import { Card, CardContent } from '$lib/components/ui/card';
     import { Button } from '$lib/components/ui/button';
+    import ReceiptPreviewModal from '../../Components/ReceiptPreviewModal.svelte';
 
     let { invoices, filters } = $props();
+
+    let previewing = $state(null);
 
     const statusStyles = {
         unpaid: 'bg-red-500/10 text-red-400',
@@ -138,7 +141,7 @@
                                     </td>
                                     <td class="px-6 py-4 font-medium text-white">
                                         {#if invoice.status === 'paid'}
-                                            <a href={`/invoices/${invoice.id}/preview`} class="hover:underline">{invoice.number}</a>
+                                            <button type="button" class="hover:underline" onclick={() => (previewing = invoice)}>{invoice.number}</button>
                                         {:else}
                                             <Link href={`/invoices/${invoice.id}/edit`} class="hover:underline">{invoice.number}</Link>
                                         {/if}
@@ -164,9 +167,7 @@
                                                     <span class="hidden sm:inline">WhatsApp</span>
                                                 </Button>
                                             </a>
-                                            <a href={`/invoices/${invoice.id}/preview`} target="_blank" rel="noopener">
-                                                <Button variant="outline" size="sm">Preview</Button>
-                                            </a>
+                                            <Button variant="outline" size="sm" onclick={() => (previewing = invoice)}>Preview</Button>
                                             <a href={`/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">
                                                 <Button variant="outline" size="sm">Download</Button>
                                             </a>
@@ -201,4 +202,6 @@
             </div>
         {/if}
     </div>
+
+    <ReceiptPreviewModal invoice={previewing} onclose={() => (previewing = null)} />
 </AuthenticatedLayout>

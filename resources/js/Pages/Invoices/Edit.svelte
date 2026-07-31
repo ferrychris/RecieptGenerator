@@ -7,8 +7,11 @@
     import { Button } from '$lib/components/ui/button';
     import InputError from '../../Components/InputError.svelte';
     import Checkbox from '../../Components/Checkbox.svelte';
+    import ReceiptPreviewModal from '../../Components/ReceiptPreviewModal.svelte';
 
     let { invoice } = $props();
+
+    let previewing = $state(false);
 
     const isEditable = true;
 
@@ -115,9 +118,7 @@
                         WhatsApp
                     </Button>
                 </a>
-                <a href={`/invoices/${invoice.id}/preview`} target="_blank" rel="noopener">
-                    <Button variant="outline">Preview</Button>
-                </a>
+                <Button variant="outline" onclick={() => (previewing = true)}>Preview</Button>
                 <a href={`/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener">
                     <Button variant="outline">Download PDF</Button>
                 </a>
@@ -290,4 +291,6 @@
             </div>
         </form>
     </div>
+
+    <ReceiptPreviewModal invoice={previewing ? invoice : null} onclose={() => (previewing = false)} />
 </AuthenticatedLayout>

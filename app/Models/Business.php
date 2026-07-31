@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Business extends Model
 {
@@ -90,22 +91,26 @@ class Business extends Model
             $business = static::query()->lockForUpdate()->findOrFail($this->id);
             $business->increment('invoice_number_seq');
 
-            $initials = '';
-            if (!empty($business->name)) {
-                $words = explode(' ', trim($business->name));
-                foreach ($words as $word) {
-                    if (!empty($word)) {
-                        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-                    }
-                }
-            }
-            
-            $initials = mb_substr($initials, 0, 3);
-            if (empty($initials)) {
-                $initials = 'RCT';
-            }
-
-            return sprintf('%s-%05d', $initials, $business->invoice_number_seq);
+            return sprintf('%s-%05d', static::receiptPrefix($business->name), $business->invoice_number_seq);
         });
+    }
+
+    /**
+     * The short code that leads every receipt number, e.g. the "FRET" in
+     * FRET-00003. Taken from the first four alphanumeric characters of the
+     * organization's name.
+     *
+     * Accents are transliterated rather than stripped so "Café" yields CAFE
+     * rather than the three-character CAF.
+     */
+    public static function receiptPrefix(?string $name): string
+    {
+        $alphanumeric = preg_replace('/[^A-Za-z0-9]/', '', Str::ascii((string) $name));
+
+        $prefix = mb_strtoupper(mb_substr($alphanumeric, 0, 4));
+
+        // Names made entirely of symbols (or empty) would otherwise produce a
+        // bare "-00001", which reads like a bug on a customer's receipt.
+        return $prefix !== '' ? $prefix : 'RCT';
     }
 }
