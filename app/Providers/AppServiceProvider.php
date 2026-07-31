@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Rendering\BrowserlessRenderer;
 use App\Services\Rendering\BrowsershotRenderer;
 use App\Services\Rendering\ReceiptRenderer;
 use Illuminate\Support\Facades\URL;
@@ -14,7 +15,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(ReceiptRenderer::class, BrowsershotRenderer::class);
+        $this->app->bind(ReceiptRenderer::class, fn () => match (config('receipts.renderer')) {
+            'browserless' => new BrowserlessRenderer(),
+            'browsershot' => new BrowsershotRenderer(),
+            default => throw new \InvalidArgumentException(
+                'Unknown receipts.renderer ['.config('receipts.renderer').']. '
+                .'Expected "browsershot" or "browserless".'
+            ),
+        });
     }
 
     /**

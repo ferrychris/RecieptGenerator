@@ -35,8 +35,16 @@ class DiagnoseReceipts extends Command
         $this->line('APP_URL: '.config('app.url'));
         $this->line('PHP: '.PHP_VERSION);
 
-        $failures += $this->checkChrome();
-        $failures += $this->checkNode();
+        $renderer = config('receipts.renderer');
+        $this->line('Renderer: '.$renderer);
+
+        if ($renderer === 'browserless') {
+            $failures += $this->checkBrowserless();
+        } else {
+            $failures += $this->checkChrome();
+            $failures += $this->checkNode();
+        }
+
         $failures += $this->checkStorage();
 
         if ($invoiceId = $this->argument('invoice')) {
@@ -57,6 +65,39 @@ class DiagnoseReceipts extends Command
         $this->info('All checks passed.');
 
         return self::SUCCESS;
+    }
+
+    private function checkBrowserless(): int
+    {
+        $this->newLine();
+        $this->info('=== Browserless (remote Chrome) ===');
+
+        $url = config('receipts.browserless.url');
+        $token = config('receipts.browserless.token');
+
+        $this->line('BROWSERLESS_URL: '.($url ?: '(NOT SET)'));
+        $this->line('BROWSERLESS_TOKEN set: '.($token ? 'yes' : 'no'));
+
+        if (! $url) {
+            $this->error('  ✗ No endpoint configured — rendering cannot work.');
+
+            return 1;
+        }
+
+        // Round-trip a trivial document: proves reachability, auth, and that
+        // the service actually returns PDF bytes, all in one shot.
+        try {
+            $pdf = app(\App\Services\Rendering\BrowserlessRenderer::class)
+                ->render('<html><body><h1>ok</h1></body></html>', ['page' => 'A4']);
+
+            $this->line('  ✓ round-trip OK ('.strlen($pdf).' bytes of PDF)');
+
+            return 0;
+        } catch (\Throwable $e) {
+            $this->error('  ✗ '.get_class($e).': '.$e->getMessage());
+
+            return 1;
+        }
     }
 
     private function checkChrome(): int
@@ -259,7 +300,9 @@ class DiagnoseReceipts extends Command
             $this->line('  ✓ PDF rendered ('.strlen($pdf).' bytes)');
         } catch (\Throwable $e) {
             $this->error('  ✗ PDF render: '.get_class($e).': '.$e->getMessage());
-            $this->warn('    ^ This step needs both the puppeteer npm package and a browser binary.');
+            $this->warn(config('receipts.renderer') === 'browserless'
+                ? '    ^ This step needs a reachable, correctly-authenticated Browserless endpoint.'
+                : '    ^ This step needs both the puppeteer npm package and a browser binary.');
 
             return 1;
         }

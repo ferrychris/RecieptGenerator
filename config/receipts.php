@@ -1,6 +1,29 @@
 <?php
 
 return [
+    // Which engine turns receipt HTML into PDF bytes:
+    //
+    //   'browsershot'  — local headless Chrome via Node + puppeteer. Fast and
+    //                    free, but needs the puppeteer npm package AND a
+    //                    Chromium binary present at runtime. Good for local
+    //                    development.
+    //
+    //   'browserless'  — POSTs the HTML to a remote headless-Chrome service.
+    //                    Needs only outbound HTTP, so it works on hosts that
+    //                    don't ship node_modules to the runtime container
+    //                    (Laravel Cloud among them, where Browsershot cannot
+    //                    work at all). Same Chrome under the hood, so output
+    //                    is identical.
+    'renderer' => env('RECEIPT_RENDERER', 'browsershot'),
+
+    'browserless' => [
+        // e.g. https://production-sfo.browserless.io, or http://chrome:3000
+        // for a self-hosted ghcr.io/browserless/chromium container.
+        'url' => env('BROWSERLESS_URL'),
+        'token' => env('BROWSERLESS_TOKEN'),
+        'timeout' => env('BROWSERLESS_TIMEOUT', 60),
+    ],
+
     // Path to a system Chrome/Chromium binary used by Browsershot. On
     // Laravel Cloud this is provided by the `chromium` Nixpacks package
     // (see nixpacks.toml) and should be set via CHROME_PATH in the Cloud
