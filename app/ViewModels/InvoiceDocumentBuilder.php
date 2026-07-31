@@ -6,7 +6,11 @@ use App\Models\Invoice;
 use App\Services\DefaultTheme;
 use App\Services\LayoutCatalog;
 use App\Services\MoneyFormatter;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class InvoiceDocumentBuilder
 {
@@ -110,6 +114,39 @@ class InvoiceDocumentBuilder
                 'locale' => 'en',
                 'page' => LayoutCatalog::page($layoutKey),
             ],
+            'verification' => self::buildVerification($invoice),
+        ];
+    }
+
+    /**
+     * A signed (tamper-evident), non-expiring link to the public
+     * verification page, plus a QR code encoding it. Signing — rather than
+     * a separate stored token — means there's nothing new to look up or
+     * leak; the URL itself is the credential, checked against APP_KEY.
+     */
+    private static function buildVerification(Invoice $invoice): array
+    {
+        $url = URL::signedRoute('receipts.verify', ['invoice' => $invoice->id]);
+
+        // Sized directly to the on-page rendered pixels (Chrome's PDF export
+        // treats CSS px ~1:1), so templates can drop the SVG in as-is
+        // without needing their own scaling wrapper.
+        $qrCode = new QrCode(
+            data: $url,
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 72,
+            margin: 4,
+        );
+        // Excludes the XML declaration: this SVG is inlined directly into
+        // the receipt's HTML, and a leading "<?xml ...?>" there would
+        // render as stray visible text rather than being parsed as markup.
+        $qrSvg = (new SvgWriter())->write($qrCode, options: [
+            SvgWriter::WRITER_OPTION_EXCLUDE_XML_DECLARATION => true,
+        ])->getString();
+
+        return [
+            'url' => $url,
+            'qr_svg' => $qrSvg,
         ];
     }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReceiptVerificationController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,14 @@ Route::get('/', function () {
 
     return \Inertia\Inertia::render('Welcome');
 })->name('welcome');
+
+// Public: scanning the QR code printed on a receipt lands here. The `signed`
+// middleware is what makes this trustworthy — it's not just "any invoice ID
+// works", the full URL (including the invoice id) must match the signature
+// generated at PDF-render time, so a forged or altered link 403s.
+Route::get('/verify/{invoice}', [ReceiptVerificationController::class, 'show'])
+    ->middleware('signed')
+    ->name('receipts.verify');
 
 
 Route::middleware('auth')->group(function () {

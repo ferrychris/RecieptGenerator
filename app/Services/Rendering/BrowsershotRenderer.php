@@ -36,7 +36,23 @@ class BrowsershotRenderer implements ReceiptRenderer
             ->showBackground()
             ->margins(0, 0, 0, 0);
 
-        if ($chromePath = config('receipts.chrome_path')) {
+        $chromePath = config('receipts.chrome_path');
+
+        if (! $chromePath || str_contains($chromePath, 'chrome.exe')) {
+            $commonPaths = [
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+            ];
+            foreach ($commonPaths as $path) {
+                if (file_exists($path)) {
+                    $chromePath = $path;
+                    break;
+                }
+            }
+        }
+
+        if ($chromePath) {
             $browsershot->setChromePath($chromePath);
         }
 

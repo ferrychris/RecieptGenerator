@@ -118,7 +118,7 @@ class DefaultTheme
             'show_discount_row' => false,
             'show_payment_details' => false,
             'show_notes' => true,
-            'show_qr' => false,
+            'show_qr' => true,
             'item_details_line' => false,
             'labels_locale' => 'en',
             'date_format' => 'M j, Y',

@@ -286,7 +286,12 @@ class InvoiceController extends Controller
         $layoutKey = $request->query('layout', $invoice->template ?? 'ledger');
 
         $invoice->update(['pdf_url' => null]);
-        RenderInvoicePdfJob::dispatchSync($invoice, $layoutKey);
+        
+        try {
+            RenderInvoicePdfJob::dispatchSync($invoice, $layoutKey);
+        } catch (\Throwable $e) {
+            abort(500, "PDF Generation Error: " . $e->getMessage());
+        }
 
         $invoice->refresh();
 
